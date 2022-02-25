@@ -12,18 +12,12 @@ import com.geoat.smsforwarder.config.Configuration;
 import com.geoat.smsforwarder.mail.GMailSender;
 
 import javax.mail.MessagingException;
-
-import java.time.Instant;
 import java.util.Date;
 
-import static java.time.ZoneOffset.UTC;
-
-public class SmsListener extends BroadcastReceiver {
+public class SmsReceiver extends BroadcastReceiver {
 
     private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
-    private static final String TAG = "SMSBroadcastReceiver";
-
-    public String message = "";
+    private String TAG = SmsReceiver.class.getSimpleName();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -38,31 +32,33 @@ public class SmsListener extends BroadcastReceiver {
                     messages[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
 
                     try {
-                        Configuration configuration = MainActivity.getConfiguration();
+                        Configuration configuration = MainActivity.getConfiguration(context);
                         if (configuration != null) {
-                            GMailSender sender = new GMailSender(configuration.getSmtpGmailId(),
+                            GMailSender gMailSender = new GMailSender(configuration.getSmtpGmailId(),
                                     configuration.getSmtpGmailPassword());
-                            sender.sendMail("Message @" + new Date(messages[i].getTimestampMillis()).toGMTString() ,
+                            String messageDate =
+                                    new Date(messages[i].getTimestampMillis()).toGMTString();
+                            String senderAddress = messages[i].getDisplayOriginatingAddress();
+                            gMailSender.sendMail("Message @" + messageDate + " From: " + senderAddress,
                                     messages[i].getMessageBody(),
                                     configuration.getSmtpGmailId(),
                                     configuration.getRecipientEmailId());
 
-                            Toast.makeText(context.getApplicationContext(), "Mail Send", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context.getApplicationContext(), "Mail with SMS send.",
+                                    Toast.LENGTH_SHORT).show();
                         }
 
                         System.out.println("Done");
 
                     } catch (MessagingException e) {
-                        Log.i("abcd", "Could not send mail");
+                        Log.e(TAG, "Could not send mail");
                     } catch (Exception e) {
-                        Log.i("abcd", "Could not send mail");
+                        Log.e(TAG, "Could not send mail");
                     }
                 }
                 if (messages.length > -1) {
-                    Log.i(TAG, "Message recieved: " + messages[0].getMessageBody());
+                    Log.i(TAG, "Message received.");
                 }
-
-
             }
         }
     }

@@ -1,8 +1,11 @@
 package com.geoat.smsforwarder;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Build;
 import android.provider.Telephony;
 import android.util.Log;
 import android.view.View;
@@ -20,9 +23,15 @@ import javax.mail.MessagingException;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String CHANNEL_ID = "autoStartServiceChannel";
+    public static final String CHANNEL_NAME = "Auto Start Service Channel";
+
     private static Configuration configuration;
 
-    public static Configuration getConfiguration() {
+    public static Configuration getConfiguration(Context context) {
+        if (configuration == null) {
+            configuration = ConfigurationRepository.loadConfiguration(context);
+        }
         return configuration;
     }
 
