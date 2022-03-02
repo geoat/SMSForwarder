@@ -10,6 +10,7 @@ public class ConfigurationRepository {
     public static final String RECIPIENT_EMAIL_ID = "recipientEmailId";
     public static final String SMTP_GMAIL_ID = "smtpGmailId";
     public static final String SMTP_GMAIL_PASSWORD = "smtpGmailPassword";
+    public static final String EMAIL_ENABLED = "isEmailEnabled";
 
     public static void saveConfiguration(Context context, Configuration configuration) {
 
@@ -23,7 +24,8 @@ public class ConfigurationRepository {
         // Storing the key and its value as the data fetched from edittext
         edit.putString(RECIPIENT_EMAIL_ID, configuration.getRecipientEmailId());
         edit.putString(SMTP_GMAIL_ID, configuration.getSmtpGmailId());
-        edit.putString(SMTP_GMAIL_PASSWORD, configuration.getRecipientEmailId());
+        edit.putString(SMTP_GMAIL_PASSWORD, configuration.getSmtpGmailPassword());
+        edit.putBoolean(EMAIL_ENABLED, configuration.isEmailsEnabled());
 
         // Once the changes have been made,
         // we need to commit to apply those changes made,
@@ -42,6 +44,7 @@ public class ConfigurationRepository {
         configuration.setRecipientEmailId(sharedPreferences.getString(RECIPIENT_EMAIL_ID, ""));
         configuration.setSmtpGmailId(sharedPreferences.getString(SMTP_GMAIL_ID, ""));
         configuration.setSmtpGmailPassword(sharedPreferences.getString(SMTP_GMAIL_PASSWORD, ""));
+        configuration.setEmailsEnabled(sharedPreferences.getBoolean(EMAIL_ENABLED, true));
 
         return configuration;
     }

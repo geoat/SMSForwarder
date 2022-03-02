@@ -10,7 +10,9 @@ import android.provider.Telephony;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,10 +47,24 @@ public class MainActivity extends AppCompatActivity {
         EditText editRecipientEmail = findViewById(R.id.editRecipientEmail);
         EditText editSmtpGmail = findViewById(R.id.editSmtpGmail);
         EditText editSmtpGmailPassword = findViewById(R.id.editSmtpGmailPassword);
+        Switch switchEmailsEnabled = findViewById(R.id.switchEmailsEnabled);
 
         editRecipientEmail.setText(configuration.getRecipientEmailId());
         editSmtpGmail.setText(configuration.getSmtpGmailId());
         editSmtpGmailPassword.setText(configuration.getSmtpGmailPassword());
+        switchEmailsEnabled.setChecked(configuration.isEmailsEnabled());
+
+        switchEmailsEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean value) {
+                configuration.setEmailsEnabled(value);
+                Context context = getApplicationContext();
+                Configuration savedConfiguration =
+                        ConfigurationRepository.loadConfiguration(context);
+                savedConfiguration.setEmailsEnabled(value);
+                ConfigurationRepository.saveConfiguration(context, savedConfiguration);
+            }
+        });
 
         Button buttonTestConfiguration = findViewById(R.id.buttonTestConfiguration);
 
@@ -74,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                             configuration.getSmtpGmailId(),
                             configuration.getRecipientEmailId());
 
-                    Toast.makeText(MainActivity.this, "Mail Send", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Test email send.", Toast.LENGTH_SHORT).show();
 
                     System.out.println("Done");
 

@@ -17,7 +17,7 @@ import java.util.Date;
 public class SmsReceiver extends BroadcastReceiver {
 
     private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
-    private String TAG = SmsReceiver.class.getSimpleName();
+    private static String TAG = SmsReceiver.class.getSimpleName();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -26,14 +26,19 @@ public class SmsReceiver extends BroadcastReceiver {
         if (intent.getAction() == SMS_RECEIVED) {
             Bundle bundle = intent.getExtras();
             if (bundle != null) {
-                Object[] pdus = (Object[])bundle.get("pdus");
+                Object[] pdus = (Object[]) bundle.get("pdus");
                 final SmsMessage[] messages = new SmsMessage[pdus.length];
-                for (int i = 0; i < pdus.length; i++) {
-                    messages[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
+                if (messages.length > -1) {
+                    Log.i(TAG, "Message received.");
+                }
+                Configuration configuration = MainActivity.getConfiguration(context);
+                if (configuration != null
+                        && configuration.isValid()
+                        && configuration.isEmailsEnabled()) {
+                    for (int i = 0; i < pdus.length; i++) {
+                        messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
 
-                    try {
-                        Configuration configuration = MainActivity.getConfiguration(context);
-                        if (configuration != null) {
+                        try {
                             GMailSender gMailSender = new GMailSender(configuration.getSmtpGmailId(),
                                     configuration.getSmtpGmailPassword());
                             String messageDate =
@@ -44,20 +49,17 @@ public class SmsReceiver extends BroadcastReceiver {
                                     configuration.getSmtpGmailId(),
                                     configuration.getRecipientEmailId());
 
-                            Toast.makeText(context.getApplicationContext(), "Mail with SMS send.",
+                            Toast.makeText(context.getApplicationContext(), "Email with SMS send.",
                                     Toast.LENGTH_SHORT).show();
+                            Log.i(TAG, "Email with SMS send.");
+
+
+                        } catch (MessagingException e) {
+                            Log.e(TAG, "Could not send mail");
+                        } catch (Exception e) {
+                            Log.e(TAG, "Could not send mail");
                         }
-
-                        System.out.println("Done");
-
-                    } catch (MessagingException e) {
-                        Log.e(TAG, "Could not send mail");
-                    } catch (Exception e) {
-                        Log.e(TAG, "Could not send mail");
                     }
-                }
-                if (messages.length > -1) {
-                    Log.i(TAG, "Message received.");
                 }
             }
         }

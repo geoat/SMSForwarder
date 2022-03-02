@@ -7,6 +7,7 @@ public class Configuration {
     private String recipientEmailId = "";
     private String smtpGmailId = "";
     private String smtpGmailPassword = "";
+    private boolean emailsEnabled = true;
 
     public Configuration() {
 
@@ -41,6 +42,14 @@ public class Configuration {
 
     public String getSmtpGmailPassword() {
         return smtpGmailPassword;
+    }
+
+    public boolean isEmailsEnabled() {
+        return emailsEnabled;
+    }
+
+    public void setEmailsEnabled(boolean emailsEnabled) {
+        this.emailsEnabled = emailsEnabled;
     }
 
     public void setRecipientEmailId(String recipientEmailId) {
